@@ -1,0 +1,395 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KNOWBRIDGE AI | Project Memory</title>
+<style>
+:root{
+ --bg:#07111f;--panel:#0d1b2b;--panel2:#102338;--line:#1c3449;
+ --text:#e7f2fa;--muted:#8ba4b8;--teal:#20dfc2;--blue:#399cff;
+ --red:#ff6b78;--yellow:#f4c66b;--green:#59dda5;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px Arial,sans-serif}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.app{display:flex;min-height:100vh}
+.sidebar{width:245px;background:#091625;border-right:1px solid var(--line);padding:24px 15px;flex-shrink:0}
+.brand{font-size:20px;font-weight:800;letter-spacing:1px;margin:0 8px 5px}
+.brand span{color:var(--teal)}
+.tagline{font-size:11px;color:var(--muted);margin:0 8px 30px}
+.navlabel{font-size:10px;color:#698398;letter-spacing:1.5px;margin:25px 10px 10px}
+.nav button{display:flex;gap:12px;width:100%;padding:12px 13px;border:0;border-radius:9px;background:transparent;color:#a9bdcc;text-align:left;margin:3px 0}
+.nav button:hover,.nav button.active{background:#123044;color:var(--teal)}
+.sidebar-bottom{margin-top:45px;border-top:1px solid var(--line);padding:16px 8px;color:var(--muted);font-size:11px;line-height:1.7}
+.main{flex:1;min-width:0}
+.topbar{height:70px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 30px;background:#091625}
+.topbar small{color:var(--muted)}
+.status{color:var(--green);font-size:12px}
+.content{padding:30px;max-width:1450px;margin:auto}
+.page{display:none}.page.active{display:block}
+h1{font-size:27px;margin:0 0 8px}
+h2{font-size:17px;margin:0 0 17px}
+h3{font-size:14px;margin:0 0 12px}
+.subtitle{color:var(--muted);margin-bottom:25px}
+.grid{display:grid;gap:16px}
+.stats{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:20px}
+.two{grid-template-columns:1.2fr .8fr}
+.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:19px;margin-bottom:16px;min-width:0}
+.stat-label{color:var(--muted);font-size:12px}
+.stat-value{font-size:28px;font-weight:800;margin:12px 0 5px}
+.stat-note{font-size:11px;color:var(--teal)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.muted{color:var(--muted)}
+.small{font-size:11px}
+.btn{border:1px solid var(--line);background:#132a3e;color:var(--text);border-radius:8px;padding:10px 14px}
+.btn:hover{border-color:var(--teal);color:var(--teal)}
+.primary{background:var(--teal);color:#04211e;border-color:var(--teal);font-weight:700}
+.primary:hover{background:#69f3d9;color:#04211e}
+.danger{color:var(--red)}
+input,textarea,select{width:100%;background:#071625;border:1px solid var(--line);border-radius:8px;padding:11px;color:var(--text);outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--teal)}
+textarea{min-height:105px;resize:vertical}
+label{display:block;color:var(--muted);font-size:12px;margin:13px 0 7px}
+.formrow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pill{display:inline-block;padding:5px 8px;border-radius:20px;font-size:10px;background:#183247;color:var(--teal)}
+.pill.red{color:var(--red);background:#3a202b}
+.pill.yellow{color:var(--yellow);background:#3c3320}
+.pill.green{color:var(--green);background:#16382f}
+.item{padding:13px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border:0}
+.item p{color:var(--muted);font-size:12px;line-height:1.6;margin:7px 0}
+.bar{height:7px;background:#1b3043;border-radius:9px;overflow:hidden;margin:10px 0}
+.bar span{display:block;height:100%;background:var(--teal);border-radius:9px}
+.table{width:100%;border-collapse:collapse;font-size:12px}
+.table th,.table td{text-align:left;padding:12px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+.table th{color:var(--muted);font-weight:500}
+.table-wrap{overflow-x:auto}
+.empty{padding:30px;text-align:center;color:var(--muted)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.drop{border:1px dashed #286078;border-radius:12px;padding:28px;text-align:center;background:#0a1b2b}
+.drop input{max-width:280px;margin-top:14px}
+.notice{background:#142b38;border-left:3px solid var(--teal);padding:12px;border-radius:6px;color:#b7d4dd;font-size:12px;line-height:1.6;margin:14px 0}
+.search{max-width:300px}
+.toast{position:fixed;bottom:22px;right:22px;background:#143b3a;color:white;padding:13px 18px;border-radius:9px;display:none;z-index:10}
+textarea.report{min-height:330px;line-height:1.6}
+.footer-note{color:#627c90;font-size:11px;margin-top:25px}
+@media(max-width:900px){
+ .sidebar{width:190px}.stats{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}
+}
+@media(max-width:620px){
+ .app{display:block}.sidebar{width:100%;padding:12px}.brand{display:inline-block}
+ .tagline,.navlabel,.sidebar-bottom{display:none}.nav{display:flex;overflow:auto;gap:4px}
+ .nav button{white-space:nowrap;width:auto;padding:10px;font-size:12px}
+ .topbar{height:52px;padding:0 15px}.content{padding:17px}
+ .stats,.three,.formrow{grid-template-columns:1fr 1fr}
+ h1{font-size:23px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+ <div class="brand">KNOW<span>BRIDGE</span> AI</div>
+ <div class="tagline">PROJECT MEMORY INTELLIGENCE</div>
+ <div class="navlabel">WORKSPACE</div>
+ <nav class="nav">
+  <button class="active" data-page="dashboard">◈ Dashboard</button>
+  <button data-page="workspace">▦ Project Workspace</button>
+  <button data-page="collector">⇧ Knowledge Collector</button>
+  <button data-page="intelligence">✧ AI Intelligence</button>
+  <button data-page="evidence">⌕ Evidence Tracker</button>
+  <button data-page="review">✓ Review & Approval</button>
+  <button data-page="handover">⇢ Smart Handover</button>
+ </nav>
+ <div class="navlabel">SYSTEM</div>
+ <nav class="nav">
+  <button data-page="settings">⚙ Settings</button>
+ </nav>
+ <div class="sidebar-bottom">KNOWBRIDGE AI V1.0<br>Local prototype environment<br><span style="color:var(--teal)">● Demo system active</span></div>
+</aside>
+<main class="main">
+ <header class="topbar">
+  <div><strong id="topProject">Project: KNOWBRIDGE AI</strong><br><small>Knowledge continuity workspace</small></div>
+  <div class="status">● LOCAL SYSTEM ACTIVE</div>
+ </header>
+ <div class="content">
+
+ <section class="page active" id="dashboard">
+  <h1>Project Overview</h1>
+  <div class="subtitle">Your team's knowledge, decisions and project continuity in one place.</div>
+  <div class="grid stats">
+   <div class="card"><div class="stat-label">KNOWLEDGE ITEMS</div><div class="stat-value" id="statKnowledge">0</div><div class="stat-note">Collected project records</div></div>
+   <div class="card"><div class="stat-label">OPEN TASKS</div><div class="stat-value" id="statTasks">0</div><div class="stat-note">Identified action items</div></div>
+   <div class="card"><div class="stat-label">BLOCKERS</div><div class="stat-value" id="statBlockers">0</div><div class="stat-note">Items requiring attention</div></div>
+   <div class="card"><div class="stat-label">PENDING REVIEWS</div><div class="stat-value" id="statReviews">0</div><div class="stat-note">Awaiting human approval</div></div>
+  </div>
+  <div class="grid two">
+   <div class="card"><div class="row"><h2>Project Activity</h2><span class="pill">LIVE LOCAL DATA</span></div><div id="activity"></div></div>
+   <div class="card"><h2>Knowledge Continuity</h2><div class="stat-value" id="continuity">0%</div><div class="muted small">Based on reviewed knowledge records</div><div class="bar"><span id="continuityBar" style="width:0%"></span></div><div class="notice">Continuity is a prototype indicator, not a validated risk score.</div><h3>Quick Actions</h3><div class="actions"><button class="btn primary" onclick="showPage('collector')">+ Collect Knowledge</button><button class="btn" onclick="showPage('handover')">Generate Handover →</button></div></div>
+  </div>
+  <div class="card"><h2>Recent Knowledge</h2><div id="recent"></div></div>
+ </section>
+
+ <section class="page" id="workspace">
+  <h1>Project Workspace</h1><div class="subtitle">Manage the project context used to build a reliable handover.</div>
+  <div class="grid two">
+   <div class="card"><h2>Project Details</h2>
+    <label>Project name</label><input id="projectName" value="KNOWBRIDGE AI">
+    <label>Project description</label><textarea id="projectDesc">An intelligent project memory and predictive knowledge-loss prevention platform.</textarea>
+    <div class="formrow"><div><label>Team name</label><input id="teamName" value="rohitfedram1863"></div><div><label>Project status</label><select id="projectStatus"><option>In Progress</option><option>Planning</option><option>Completed</option><option>On Hold</option></select></div></div>
+    <label>Team members (one per line)</label><textarea id="members">Rohit Fedram - Team Leader
+Madhavi Wadekar
+Arya Jaiswal
+Rakhi Rajne</textarea>
+    <div class="actions"><button class="btn primary" onclick="saveProject()">Save Project Details</button></div>
+   </div>
+   <div class="card"><h2>Project Snapshot</h2><div id="projectSnapshot"></div></div>
+  </div>
+ </section>
+
+ <section class="page" id="collector">
+  <h1>Knowledge Collector</h1><div class="subtitle">Bring scattered project knowledge into one searchable workspace.</div>
+  <div class="card">
+   <h2>Upload Project Files</h2>
+   <div class="drop">⇧<h3>Import project knowledge</h3><p class="muted">Choose TXT, CSV or Markdown files. Files are processed locally in this browser.</p>
+    <input type="file" id="fileInput" multiple accept=".txt,.csv,.md,.json">
+   </div>
+   <div class="notice">For this prototype, the collector reads text-based files. Other formats such as PDF and DOCX are not parsed in V1.</div>
+   <div id="uploadStatus" class="small muted"></div>
+  </div>
+  <div class="card"><h2>Add Knowledge Manually</h2>
+   <label>Knowledge title</label><input id="knowledgeTitle" placeholder="e.g. Backend integration decision">
+   <div class="formrow"><div><label>Knowledge type</label><select id="knowledgeType"><option>Meeting Notes</option><option>Decision</option><option>Task</option><option>Technical Note</option><option>Discussion</option><option>Other</option></select></div><div><label>Owner</label><input id="knowledgeOwner" placeholder="Person responsible"></div></div>
+   <label>Content / source text</label><textarea id="knowledgeContent" placeholder="Paste project notes, discussion, decisions, tasks or meeting records..."></textarea>
+   <div class="actions"><button class="btn primary" onclick="addManual()">Add to Knowledge Base</button><button class="btn" onclick="loadSample()">Load Sample Data</button></div>
+  </div>
+  <div class="card"><h2>Collected Sources</h2><div id="sourceList"></div></div>
+ </section>
+
+ <section class="page" id="intelligence">
+  <h1>AI Intelligence</h1><div class="subtitle">Extract useful project signals from collected knowledge.</div>
+  <div class="notice">Demo mode: this V1 uses transparent keyword-based extraction in your browser. It is not connected to a real AI model. Always verify findings against their source.</div>
+  <div class="card"><div class="row"><h2>Knowledge Analysis</h2><button class="btn primary" onclick="analyzeAll()">✧ Analyze Knowledge</button></div><p class="muted small">The demo engine looks for decisions, tasks, blockers, risks and dependencies in source text.</p><div id="analysisStatus" class="muted small"></div></div>
+  <div class="grid two">
+   <div class="card"><h2>Decisions</h2><div id="decisions"></div></div>
+   <div class="card"><h2>Tasks & Next Actions</h2><div id="tasks"></div></div>
+   <div class="card"><h2>Blockers</h2><div id="blockers"></div></div>
+   <div class="card"><h2>Risks & Dependencies</h2><div id="risks"></div></div>
+  </div>
+ </section>
+
+ <section class="page" id="evidence">
+  <h1>Evidence Tracker</h1><div class="subtitle">Trace every extracted insight back to its original source.</div>
+  <div class="card"><div class="row"><h2>Evidence Records</h2><input class="search" id="evidenceSearch" placeholder="Search evidence..." oninput="renderEvidence()"></div><div class="table-wrap"><table class="table"><thead><tr><th>Finding</th><th>Type</th><th>Source</th><th>Confidence</th><th>Status</th></tr></thead><tbody id="evidenceRows"></tbody></table></div></div>
+  <div class="notice">Confidence is a rough demo indicator based on keyword matches, not a probability of correctness.</div>
+ </section>
+
+ <section class="page" id="review">
+  <h1>Review & Approval</h1><div class="subtitle">Human verification before knowledge becomes part of an official handover.</div>
+  <div class="card"><div class="row"><h2>Findings Requiring Review</h2><span class="pill yellow" id="reviewCount">0 pending</span></div><div id="reviewList"></div></div>
+  <div class="card"><h2>Review Policy</h2><p class="muted">A finding should be checked against its source, corrected if necessary, and approved by an authorised team member before it is treated as verified handover knowledge.</p></div>
+ </section>
+
+ <section class="page" id="handover">
+  <h1>Smart Handover</h1><div class="subtitle">Create a structured continuity document for the next team member.</div>
+  <div class="card">
+   <div class="row"><h2>Handover Generator</h2><button class="btn primary" onclick="generateReport()">Generate Handover</button></div>
+   <div class="notice">Only approved findings are labelled as verified. Unreviewed findings are shown separately for attention.</div>
+   <label>Outgoing / transitioning member</label><input id="outgoing" placeholder="Enter member name">
+   <label>Incoming member</label><input id="incoming" placeholder="Enter incoming member">
+   <label>Additional handover notes</label><textarea id="handoverNotes" placeholder="Add context, instructions or important details..."></textarea>
+   <div class="actions"><button class="btn primary" onclick="generateReport()">Build Report</button><button class="btn" onclick="downloadReport()">Export .TXT</button><button class="btn" onclick="copyReport()">Copy Report</button></div>
+  </div>
+  <div class="card"><h2>Generated Handover Document</h2><textarea id="report" class="report" placeholder="Your generated handover will appear here..."></textarea></div>
+ </section>
+
+ <section class="page" id="settings">
+  <h1>Settings & Data</h1><div class="subtitle">Manage local prototype data and demo behaviour.</div>
+  <div class="card"><h2>Local Storage</h2><p class="muted">Your project data is saved in this browser using localStorage. It is not uploaded to a server.</p><div class="actions"><button class="btn" onclick="exportBackup()">Export Data Backup</button><button class="btn" onclick="document.getElementById('backupInput').click()">Import Backup</button><input type="file" id="backupInput" accept=".json" style="display:none"></div></div>
+  <div class="card"><h2>Reset Demo</h2><p class="muted">Restore the original sample project and clear the current browser data.</p><button class="btn danger" onclick="resetDemo()">Reset All Prototype Data</button></div>
+  <div class="card"><h2>About KNOWBRIDGE AI</h2><p class="muted">A project knowledge continuity prototype. It demonstrates collection, reconstruction, verification, review and handover using local sample data.</p><span class="pill">Version 1.0 · Local HTML</span></div>
+ </section>
+
+ <div class="footer-note">KNOWBRIDGE AI · Where project knowledge stays connected · V1 local prototype</div>
+ </div>
+</main>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const $=id=>document.getElementById(id);
+const starter=[
+ {id:1,title:"Frontend architecture discussion",type:"Meeting Notes",owner:"Rohit Fedram",source:"Sample meeting notes",content:"The team discussed the frontend architecture. Decision: use a modular dashboard with separate workspace sections. Task: Rohit will prepare the first interface. The API integration is blocked until backend endpoints are ready.",status:"Pending",date:new Date().toISOString()},
+ {id:2,title:"Backend integration update",type:"Technical Note",owner:"Arya Jaiswal",source:"Sample technical notes",content:"The backend API structure needs to be finalised. Risk: integration may be delayed if the API contract changes. Dependency: frontend integration depends on the backend endpoint definitions. Task: document the API contract.",status:"Pending",date:new Date().toISOString()},
+ {id:3,title:"Knowledge review process",type:"Decision",owner:"Madhavi Wadekar",source:"Sample project discussion",content:"Decision: every handover item must be reviewed by a team member before approval. Task: prepare the review checklist. Unresolved: decide who will approve the final handover.",status:"Pending",date:new Date().toISOString()}
+];
+let db={project:{name:"KNOWBRIDGE AI",desc:"An intelligent project memory and predictive knowledge-loss prevention platform.",team:"rohitfedram1863",status:"In Progress",members:"Rohit Fedram - Team Leader\nMadhavi Wadekar\nArya Jaiswal\nRakhi Rajne"},items:[],findings:[],activity:[]};
+function loadDB(){
+ try{let saved=localStorage.getItem("knowbridge_v1");if(saved)db=JSON.parse(saved)}catch(e){}
+ if(!db.items.length&&!db.activity.length){db.items=starter.map(x=>({...x}));db.activity.push("Sample project workspace created")}
+ save();syncProject();renderAll();
+}
+function save(){localStorage.setItem("knowbridge_v1",JSON.stringify(db))}
+function toast(msg){let t=$("toast");t.textContent=msg;t.style.display="block";setTimeout(()=>t.style.display="none",2300)}
+function log(msg){db.activity.unshift(new Date().toLocaleString()+" — "+msg);db.activity=db.activity.slice(0,30);save()}
+function showPage(id){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ $(id).classList.add("active");
+ document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===id));
+ if(id==="handover")generateReport();
+}
+document.querySelectorAll(".nav button[data-page]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
+function syncProject(){
+ $("projectName").value=db.project.name;$("projectDesc").value=db.project.desc;
+ $("teamName").value=db.project.team;$("projectStatus").value=db.project.status;
+ $("members").value=db.project.members;$("topProject").textContent="Project: "+db.project.name;
+}
+function saveProject(){
+ db.project={name:$("projectName").value.trim()||"Untitled Project",desc:$("projectDesc").value,team:$("teamName").value,status:$("projectStatus").value,members:$("members").value};
+ log("Project details updated");save();syncProject();renderAll();toast("Project details saved");
+}
+function addItem(title,type,owner,content,source){
+ if(!content.trim())return;
+ db.items.unshift({id:Date.now()+Math.random(),title:title||"Imported knowledge",type,owner:owner||"Unassigned",content,source:source||"Manual entry",status:"Pending",date:new Date().toISOString()});
+ log("Knowledge added: "+(title||"Imported knowledge"));save();renderAll();
+}
+function addManual(){
+ let title=$("knowledgeTitle").value,type=$("knowledgeType").value,owner=$("knowledgeOwner").value,content=$("knowledgeContent").value;
+ if(!content.trim()){toast("Please add some source content");return}
+ addItem(title,type,owner,content,"Manual entry");
+ $("knowledgeTitle").value="";$("knowledgeOwner").value="";$("knowledgeContent").value="";
+ toast("Knowledge added successfully");
+}
+function loadSample(){
+ starter.forEach(s=>{if(!db.items.some(x=>x.title===s.title))db.items.push({...s,id:Date.now()+Math.random()})});
+ log("Sample knowledge loaded");save();renderAll();toast("Sample knowledge loaded");
+}
+$("fileInput").addEventListener("change",async e=>{
+ let files=[...e.target.files];let count=0;
+ for(let f of files){
+  try{
+   let text=await f.text();
+   if(text.trim()){addItem(f.name,"Uploaded File","Unassigned",text,"Uploaded: "+f.name);count++}
+  }catch(err){}
+ }
+ $("uploadStatus").textContent=count+" file(s) imported. Review the extracted content before relying on it.";
+ e.target.value="";renderAll();toast(count+" file(s) processed");
+});
+const rules=[
+ {type:"Decision",keys:["decision:","decided to","we will use","agreed to","selected"],confidence:"Medium"},
+ {type:"Task",keys:["task:","todo:","will prepare","needs to","must complete","action item"],confidence:"Medium"},
+ {type:"Blocker",keys:["blocked","blocker","cannot proceed","waiting for","unable to"],confidence:"High"},
+ {type:"Risk",keys:["risk:","may be delayed","might fail","uncertain","potential issue"],confidence:"Medium"},
+ {type:"Dependency",keys:["depends on","dependency:","requires","dependent on","before integration"],confidence:"Medium"}
+];
+function analyzeAll(){
+ db.findings=[];
+ db.items.forEach(item=>{
+  let text=item.content.toLowerCase();
+  rules.forEach(rule=>{
+   let hits=rule.keys.filter(k=>text.includes(k));
+   if(hits.length){
+    let idx=text.indexOf(hits[0]),start=Math.max(0,idx-65),end=Math.min(item.content.length,idx+190);
+    let excerpt=item.content.slice(start,end).replace(/\s+/g," ").trim();
+    db.findings.push({id:Date.now()+Math.random(),type:rule.type,text:excerpt,source:item.title,sourceId:item.id,confidence:rule.confidence,status:"Pending"});
+   }
+  });
+ });
+ log("Demo intelligence analysis completed");save();renderAll();
+ $("analysisStatus").textContent="Analysis complete: "+db.findings.length+" candidate findings generated from "+db.items.length+" source(s).";
+ toast("Demo analysis complete");
+}
+function renderFindings(type,id){
+ let arr=db.findings.filter(x=>x.type===type);
+ $(id).innerHTML=arr.length?arr.map(f=>`<div class="item"><div class="row"><strong>${esc(f.type)}</strong><span class="pill ${f.status==="Approved"?"green":"yellow"}">${esc(f.status)}</span></div><p>${esc(f.text)}</p><div class="small muted">Source: ${esc(f.source)}</div></div>`).join(""):'<div class="empty">No findings yet. Run analysis first.</div>';
+}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function renderEvidence(){
+ let q=($("evidenceSearch")?.value||"").toLowerCase();
+ let arr=db.findings.filter(f=>(f.text+" "+f.source+" "+f.type).toLowerCase().includes(q));
+ $("evidenceRows").innerHTML=arr.length?arr.map(f=>`<tr><td>${esc(f.text)}</td><td>${esc(f.type)}</td><td>${esc(f.source)}</td><td>${esc(f.confidence)}</td><td><span class="pill ${f.status==="Approved"?"green":"yellow"}">${esc(f.status)}</span></td></tr>`).join(""):'<tr><td colspan="5" class="empty">No matching evidence records.</td></tr>';
+}
+function renderReview(){
+ let arr=db.findings.filter(f=>f.status==="Pending");
+ $("reviewCount").textContent=arr.length+" pending";
+ $("reviewList").innerHTML=arr.length?arr.map(f=>`<div class="item"><div class="row"><strong>${esc(f.type)}</strong><span class="pill yellow">Pending review</span></div><p>${esc(f.text)}</p><div class="small muted">Source: ${esc(f.source)} · Confidence: ${esc(f.confidence)}</div><div class="actions"><button class="btn primary" onclick="reviewFinding('${f.id}',true)">Approve</button><button class="btn" onclick="reviewFinding('${f.id}',false)">Reject</button></div></div>`).join(""):'<div class="empty">No pending reviews. Run analysis to create findings.</div>';
+}
+function reviewFinding(id,approve){
+ let f=db.findings.find(x=>String(x.id)===String(id));if(!f)return;
+ f.status=approve?"Approved":"Rejected";log((approve?"Approved: ":"Rejected: ")+f.type+" finding");save();renderAll();toast(approve?"Finding approved":"Finding rejected");
+}
+function generateReport(){
+ let approved=db.findings.filter(f=>f.status==="Approved"),pending=db.findings.filter(f=>f.status==="Pending"),rejected=db.findings.filter(f=>f.status==="Rejected");
+ let p=db.project;
+ let lines=[
+ "KNOWBRIDGE AI — PROJECT HANDOVER",
+ "================================",
+ "Project: "+p.name,"Team: "+p.team,"Status: "+p.status,
+ "Generated: "+new Date().toLocaleString(),"",
+ "PROJECT DESCRIPTION",p.desc,"",
+ "TEAM MEMBERS",p.members,"",
+ "TRANSITION DETAILS",
+ "Outgoing member: "+($("outgoing").value||"Not specified"),
+ "Incoming member: "+($("incoming").value||"Not specified"),"",
+ "APPROVED / VERIFIED FINDINGS"
+ ];
+ if(approved.length)approved.forEach(f=>lines.push("["+f.type+"] "+f.text+"\nSource: "+f.source));
+ else lines.push("No findings have been approved yet.");
+ lines.push("","PENDING HUMAN REVIEW");
+ if(pending.length)pending.forEach(f=>lines.push("["+f.type+"] "+f.text+"\nSource: "+f.source));
+ else lines.push("No pending findings.");
+ lines.push("","REJECTED FINDINGS");
+ if(rejected.length)rejected.forEach(f=>lines.push("["+f.type+"] "+f.text));
+ else lines.push("None.","","SOURCE REGISTER");
+ db.items.forEach((x,i)=>lines.push((i+1)+". "+x.title+" | "+x.type+" | "+x.source));
+ lines.push("","ADDITIONAL NOTES",$("handoverNotes").value||"None provided.","","IMPORTANT: This is a prototype-generated draft. Verify all information and confirm access permissions before operational use.");
+ $("report").value=lines.join("\n");toast("Handover report generated");
+}
+function downloadReport(){
+ if(!$("report").value)generateReport();
+ let blob=new Blob([$ ("report").value],{type:"text/plain"});
+ let a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="KNOWBRIDGE_Handover.txt";a.click();URL.revokeObjectURL(a.href);
+}
+function copyReport(){
+ if(!$("report").value)generateReport();
+ navigator.clipboard.writeText($("report").value).then(()=>toast("Report copied")).catch(()=>toast("Copy not available in this browser"));
+}
+function renderAll(){
+ $("statKnowledge").textContent=db.items.length;
+ $("statTasks").textContent=db.findings.filter(f=>f.type==="Task"&&f.status!=="Rejected").length;
+ $("statBlockers").textContent=db.findings.filter(f=>f.type==="Blocker"&&f.status!=="Rejected").length;
+ $("statReviews").textContent=db.findings.filter(f=>f.status==="Pending").length;
+ let approved=db.findings.filter(f=>f.status==="Approved").length;
+ let pct=db.findings.length?Math.round(approved/db.findings.length*100):0;
+ $("continuity").textContent=pct+"%";$("continuityBar").style.width=pct+"%";
+ $("activity").innerHTML=db.activity.length?db.activity.slice(0,7).map(x=>`<div class="item small">${esc(x)}</div>`).join(""):'<div class="empty">No activity yet.</div>';
+ $("recent").innerHTML=db.items.length?db.items.slice(0,5).map(x=>`<div class="item"><div class="row"><strong>${esc(x.title)}</strong><span class="pill">${esc(x.type)}</span></div><p>${esc(x.content.slice(0,170))}${x.content.length>170?"…":""}</p><div class="small muted">${esc(x.source)} · ${esc(x.owner)}</div></div>`).join(""):'<div class="empty">No knowledge collected yet.</div>';
+ $("sourceList").innerHTML=db.items.length?db.items.map(x=>`<div class="item"><div class="row"><strong>${esc(x.title)}</strong><button class="btn" onclick="deleteItem('${x.id}')">Delete</button></div><p>${esc(x.content.slice(0,200))}</p><div class="small muted">${esc(x.type)} · ${esc(x.source)} · ${esc(x.owner)}</div></div>`).join(""):'<div class="empty">No sources imported yet.</div>';
+ renderFindings("Decision","decisions");renderFindings("Task","tasks");renderFindings("Blocker","blockers");renderFindings("Risk","risks");
+ $("risks").innerHTML+=db.findings.filter(f=>f.type==="Dependency").map(f=>`<div class="item"><strong>Dependency</strong><p>${esc(f.text)}</p><span class="small muted">${esc(f.source)}</span></div>`).join("");
+ renderEvidence();renderReview();
+ $("projectSnapshot").innerHTML=`<h3>${esc(db.project.name)}</h3><p class="muted">${esc(db.project.desc)}</p><p><span class="pill">${esc(db.project.status)}</span></p><p class="small muted">Team: ${esc(db.project.team)}</p><p class="small muted">Knowledge sources: ${db.items.length}</p><p class="small muted">Extracted findings: ${db.findings.length}</p>`;
+}
+function deleteItem(id){
+ if(!confirm("Delete this knowledge source and its findings?"))return;
+ db.items=db.items.filter(x=>String(x.id)!==String(id));db.findings=db.findings.filter(x=>String(x.sourceId)!==String(id));log("Knowledge source deleted");save();renderAll();toast("Source deleted");
+}
+function exportBackup(){
+ let blob=new Blob([JSON.stringify(db,null,2)],{type:"application/json"});
+ let a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="knowbridge-backup.json";a.click();URL.revokeObjectURL(a.href);
+}
+$("backupInput").addEventListener("change",async e=>{
+ let f=e.target.files[0];if(!f)return;
+ try{let data=JSON.parse(await f.text());if(!data.project||!Array.isArray(data.items)||!Array.isArray(data.findings))throw Error("Invalid backup");db=data;save();syncProject();renderAll();toast("Backup imported")}catch(err){toast("Invalid backup file")}e.target.value="";
+});
+function resetDemo(){
+ if(!confirm("This will erase your current local prototype data. Continue?"))return;
+ localStorage.removeItem("knowbridge_v1");location.reload();
+}
+loadDB();
+</script>
+</body>
+</html>
